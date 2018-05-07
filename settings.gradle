@@ -1,2 +1,3 @@
 rootProject.name = 'sponge-ez-data'
+include 'sponge-ez-data-kotlin'
 
