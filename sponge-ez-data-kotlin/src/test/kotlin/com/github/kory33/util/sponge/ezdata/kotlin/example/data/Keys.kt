@@ -1,4 +1,4 @@
-package com.github.kory33.util.sponge.exdata.kotlin.example.data
+package com.github.kory33.util.sponge.ezdata.kotlin.example.data
 
 import com.github.kory33.util.sponge.ezdata.kotlin.constructKey
 import org.spongepowered.api.util.TypeTokens

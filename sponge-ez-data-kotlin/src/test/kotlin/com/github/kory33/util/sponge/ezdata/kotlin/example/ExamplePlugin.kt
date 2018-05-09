@@ -1,8 +1,8 @@
-package com.github.kory33.util.sponge.exdata.kotlin.example
+package com.github.kory33.util.sponge.ezdata.kotlin.example
 
-import com.github.kory33.util.sponge.exdata.kotlin.example.data.ImmutableStoneBreak
-import com.github.kory33.util.sponge.exdata.kotlin.example.data.StoneBreak
-import com.github.kory33.util.sponge.exdata.kotlin.example.data.StoneBreakBuilder
+import com.github.kory33.util.sponge.ezdata.kotlin.example.data.ImmutableStoneBreak
+import com.github.kory33.util.sponge.ezdata.kotlin.example.data.StoneBreak
+import com.github.kory33.util.sponge.ezdata.kotlin.example.data.StoneBreakBuilder
 import com.github.kory33.util.sponge.ezdata.kotlin.buildPartialRegistration
 import com.github.kory33.util.sponge.ezdata.kotlin.extensions.transformSingleValue
 import org.spongepowered.api.block.BlockTypes
