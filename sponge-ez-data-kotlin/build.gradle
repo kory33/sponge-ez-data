@@ -29,7 +29,7 @@ shadowJar {
     relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
 }
 
-task exampleJar(type: ShadowJar) {
+task buildExample(type: ShadowJar) {
     baseName = "example"
     from(sourceSets.test.output)
 }
@@ -45,7 +45,6 @@ dependencies {
 
 jar.enabled = false
 assemble.dependsOn shadowJar
-assemble.dependsOn exampleJar
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
