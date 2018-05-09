@@ -7,3 +7,5 @@ fun String.splitCamelCase() = fold(listOf("")) { words, char ->
 fun String.toSnakeCase() = splitCamelCase().joinToString("_").toLowerCase()
 
 fun String.toKebabCase() = splitCamelCase().joinToString("-").toLowerCase()
+
+fun String.toManipulatorId() = "{$this|"
