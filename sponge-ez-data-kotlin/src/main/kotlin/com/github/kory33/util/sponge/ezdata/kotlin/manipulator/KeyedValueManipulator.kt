@@ -26,12 +26,14 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
     /**
      * Projection of [Value] onto [Key].
      *
-     * Specifically, for every entry (k, v) there has to be some type `V` such that (k, v): (Key<V>, V).
+     * Specifically, for every entry (k, v),
+     * there has to be some type `E` such that (k, v): (Key<out Value<E>>, Value<E>).
+     *
      * This property should hold by the type restriction given by [addKeyValuePair].
      */
     private val keyValueMap: MutableMap<Key<*>, Value<*>> = HashMap()
 
-    protected fun <E, V: Value<E>> addValue(value: V) {
+    protected fun <E> addValue(value: Value<E>) {
         keyValueMap[value.key] = value
     }
 
@@ -81,7 +83,8 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
         val value = keyValueMap[key as Key<*>]
 
         // If key: Key<out BaseValue<E>> for some E, then value: Value<E>.
-        // Also, Value<E> ⊆ V therefore this line is safe.
+        // ~Also, Value<E> ⊆ V therefore this line is safe.~
+        // TODO how do we know Value<E> ⊆ V??
         // Moreover, since this implementation is final, this line ensures that this method only returns
         // Optional<out Value<E>>
         return Optional.ofNullable(value as? V)

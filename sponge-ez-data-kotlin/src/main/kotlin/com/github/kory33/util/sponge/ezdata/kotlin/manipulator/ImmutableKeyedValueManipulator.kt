@@ -13,19 +13,21 @@ import java.util.*
 abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>, M: DataManipulator<M, I>>: ImmutableDataManipulator<I, M> {
 
     /**
-     * Projection of [Value] onto [Key].
+     * Projection of [ImmutableValue] onto [Key].
      *
-     * Specifically, for every entry (k, v) there has to be some type `V` such that (k, v): (Key<V>, V).
+     * Specifically, for every entry (k, v),
+     * there has to be some type `E` such that (k, v): (Key<out Value<E>>, ImmutableValue<E>).
+     *
      * This property should hold by the type restriction given by [addKeyValuePair]
      */
     private val keyValueMap: MutableMap<Key<*>, ImmutableValue<*>> = HashMap()
 
-    protected fun <E, V: Value<E>> addKeyValuePair(key: Key<V>, value: ImmutableValue<E>) {
-        keyValueMap[key] = value
+    protected fun <E> addValue(value: ImmutableValue<E>) {
+        keyValueMap[value.key] = value
     }
 
     protected fun <E> addKeyValuePair(key: Key<Value<E>>, value: E) {
-        addKeyValuePair(key, Sponge.getRegistry().valueFactory.createValue(key, value).asImmutable())
+        addValue(Sponge.getRegistry().valueFactory.createValue(key, value).asImmutable())
     }
 
     override fun supports(key: Key<*>?) = keyValueMap.containsKey(key)
@@ -37,8 +39,9 @@ abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>,
     override fun <E : Any?, V : BaseValue<E>?> getValue(key: Key<V>?): Optional<V> {
         val value = keyValueMap[key as Key<*>]
 
-        // If key: Key<out BaseValue<E>> for some E, then value: Value<E>.
-        // Also, Value<E> ⊆ V therefore this line is safe.
+        // If key: Key<out BaseValue<E>> for some E, then value: ImmutableValue<E>.
+        // ~Also, ImmutableValue<E> ⊆ V therefore this line is safe.~
+        // TODO how do we know ImmutableValue<E> ⊆ V??
         return Optional.ofNullable(value as V)
     }
 
