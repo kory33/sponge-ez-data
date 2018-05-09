@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 buildscript {
     ext.kotlin_version = '1.2.41'
 
@@ -20,24 +22,34 @@ version '0.1.0-alpha'
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
+shadowJar {
+    configurations = [project.configurations.embed]
+    relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
+}
+
+task buildExample(type: ShadowJar) {
+    baseName = "example"
+    from(sourceSets.main.output, sourceSets.test.output)
+    configurations = [project.configurations.embed]
+    relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    embed "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile 'org.spongepowered:spongeapi:7.0.0'
 }
 
 jar.enabled = false
 assemble.dependsOn shadowJar
-
-shadowJar {
-    dependencies {
-        include dependency('org.jetbrains.kotlin:kotlin-stdlib')
-    }
-    relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
-}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
