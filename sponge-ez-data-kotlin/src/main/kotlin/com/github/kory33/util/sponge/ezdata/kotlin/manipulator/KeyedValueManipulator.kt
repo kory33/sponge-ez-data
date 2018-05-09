@@ -16,7 +16,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 /**
- * 全てのkey-valueペアにおいてvalueの型がkeyのelementTokenに一致しているかを判定する関数
+ * Checks if, for every key-value pair, value's type matches key's elementToken
  */
 internal fun Map<Key<*>, Any>.allTypesMatch() = all { (key, value) -> key.elementToken.rawType.isInstance(value) }
 
@@ -24,12 +24,10 @@ internal fun Map<Key<*>, Any>.allTypesMatch() = all { (key, value) -> key.elemen
 abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: ImmutableDataManipulator<I, M>>: DataManipulator<M, I> {
 
     /**
-     * [Key]と[Value]の間の写像
+     * Projection of [Value] onto [Key].
      *
-     * 各エントリ`(k, v)`に関して、`k = v.getKey()`でなければならない。
-     *
-     * この性質は外部からの変更に限り[addValue]により保証される。
-     * 直接操作するときは制約を壊してはならない。
+     * Specifically, for every entry (k, v) there has to be some type `V` such that (k, v): (Key<V>, V).
+     * This property should hold by the type restriction given by [addKeyValuePair].
      */
     private val keyValueMap: MutableMap<Key<*>, Value<*>> = HashMap()
 
@@ -44,20 +42,20 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
     override fun from(container: DataContainer): Optional<M> {
         val valuePairs = keyValueMap.keys.associate { it to container[it.query] }
 
-        // 全てのキーのクエリに対応する値が入っていた場合
+        // if all the values corresponding to the queries are present
         return optionalFlatIf (valuePairs.all { (_, value) -> value.isPresent }) {
             val unwrappedValuePairs = valuePairs.mapValues { it.value.get() }
 
             optionalIf (unwrappedValuePairs.allTypesMatch()) {
                 unwrappedValuePairs.forEach { key, unwrappedValue ->
-                    // keyValueMap.keys.contains(key)なので、keyValueMap[key]はnullではない。
-                    // また、key: Key<out BaseValue<E>>なら、keyValueMapの性質によりkeyValueMap[key]: Value<E> であり、
-                    // 型一致チェックによって unwrappedValue: E である。
-                    // よってこの操作は例外を起こさず安全である。
-                    (keyValueMap[key] as Value<Any>).set(unwrappedValue)
+                    // keyValueMap.keys.contains(key) therefore keyValueMap[key] is never null.
+                    // Also, if, for some E, key: Key<out BaseValue<E>> then keyValueMap[key]: Value<E> by the
+                    // property of keyValueMap. By type-match check, unwrappedValue: E for the same E.
+                    // therefore this line does not cause any heap pollution.
+                    (keyValueMap[key] as Value<in Any>).set(unwrappedValue)
                 }
 
-                // 派生クラスの型変数Mが派生クラス自身であるならばこのキャストは安全である
+                // This cast is safe if the derived type's M is derived type itself.
                 this as M
             }
         }
@@ -66,10 +64,10 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
     override fun fill(dataHolder: DataHolder, overlap: MergeFunction): Optional<M> {
         val merged = overlap.merge(this, copy().from(dataHolder.toContainer()).orElse(null))
 
-        // merged側でのkeyValueMapの性質が保証されているならばこの操作は安全になる
+        // as long as the same restriction of keyValueMap is satisfied in `merged`, this is safe.
         keyValueMap.putAll(merged.keyValueMap)
 
-        // 派生クラスの型変数Mが派生クラス自身であるならばこのキャストは安全である
+        // This cast is safe if the derived type's M is derived type itself.
         return Optional.of(this as M)
     }
 
@@ -82,19 +80,20 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
     final override fun <E : Any?, V : BaseValue<E>> getValue(key: Key<V>?): Optional<V> {
         val value = keyValueMap[key as Key<*>]
 
-        // keyValueMapの制約より、key: Key<out BaseValue<E>>ならば、value: Value<E>である。
-        // Value<E>: Vであるから、このキャストは安全である。
-        // さらに、この実装によりgetValueがOptional<out Value<E>>しか返さないことが保証できる。
+        // If key: Key<out BaseValue<E>> for some E, then value: Value<E>.
+        // Also, Value<E> ⊆ V therefore this line is safe.
+        // Moreover, since this implementation is final, this line ensures that this method only returns
+        // Optional<out Value<E>>
         return Optional.ofNullable(value as? V)
     }
 
     override fun getValues(): Set<ImmutableValue<*>> = keyValueMap.values.map { it.asImmutable() }.toSet()
 
     override fun <E : Any?> set(key: Key<out BaseValue<E>>, value: E): M {
-        // getValueはOptional<out Value<E>>しか返さないので、このキャストは安全である
+        // this is safe because getValue only returns Optional<out Value<E>>
         getValue(key).map { (it as Value<E>).set(value) }
 
-        // 派生クラスの型変数Mが派生クラス自身であるならばこのキャストは安全である
+        // This cast is safe if the derived type's M is derived type itself.
         return this as M
     }
 

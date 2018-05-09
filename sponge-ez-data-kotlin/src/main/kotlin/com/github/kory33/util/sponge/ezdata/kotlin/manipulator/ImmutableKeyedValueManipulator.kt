@@ -10,18 +10,15 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue
 import org.spongepowered.api.data.value.mutable.Value
 import java.util.*
 
-@Suppress("UNCHECKED_CAST")
 abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>, M: DataManipulator<M, I>>: ImmutableDataManipulator<I, M> {
 
     /**
-     * [Key]と[Value]の間の写像
+     * Projection of [Value] onto [Key].
      *
-     * 各エントリに関して、`Key<V>`, `V` の `V` は一致する。
-     * この性質は外部からの変更に限り[addKeyValuePair]により保証される。
-     *
-     * このクラス内での操作は気を付けること。
+     * Specifically, for every entry (k, v) there has to be some type `V` such that (k, v): (Key<V>, V).
+     * This property should hold by the type restriction given by [addKeyValuePair]
      */
-    private val keyValueMap: MutableMap<Key<out Value<*>>, ImmutableValue<*>> = HashMap()
+    private val keyValueMap: MutableMap<Key<*>, ImmutableValue<*>> = HashMap()
 
     protected fun <E, V: Value<E>> addKeyValuePair(key: Key<V>, value: ImmutableValue<E>) {
         keyValueMap[key] = value
@@ -38,11 +35,10 @@ abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>,
     override fun <E : Any?> get(key: Key<out BaseValue<E>>?): Optional<E> = getValue(key).map { it.get() }
 
     override fun <E : Any?, V : BaseValue<E>?> getValue(key: Key<V>?): Optional<V> {
-        // HashMap.getは型変数を気にしないためここで例外は出ない
-        val value = keyValueMap[key as Key<out Value<*>>]
+        val value = keyValueMap[key as Key<*>]
 
-        // keyValueMapの制約より、keyの型Key<V>の中のVはvalueの型に一致する
-        // よってこのキャストは正しい
+        // If key: Key<out BaseValue<E>> for some E, then value: Value<E>.
+        // Also, Value<E> ⊆ V therefore this line is safe.
         return Optional.ofNullable(value as V)
     }
 
