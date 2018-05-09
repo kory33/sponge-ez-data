@@ -21,12 +21,13 @@ abstract class KeyedValueManipulatorBuilder<M: KeyedValueManipulator<M, I>, I: I
         return optionalFlatIf (requiredKeys.all { container.contains(it) }) {
             val valuePairs = requiredKeys.associate { it to container[it.query].get() }
 
-            // valueの型がkeyのelementTokenに全て一致しているならば
+            // if all the values corresponding to the queries are present
             optionalIf (valuePairs.allTypesMatch()) {
                 create().apply {
                     valuePairs.forEach { (key, value) ->
-                        // 型一致チェックにより、とあるEが存在しkey: Key<out BaseValue<E>>で、value: Eである。
-                        // よってkeyValueMap[key]はValue<E>?となり、この操作は安全となる。
+                        // By type-match check, there has to be some type E
+                        // such that key: Key<out BaseValue<E>> and value: E.
+                        // therefore this operation is safe.
                         set(key as Key<out BaseValue<Any>>, value)
                     }
                 }
