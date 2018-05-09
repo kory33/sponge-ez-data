@@ -1,5 +1,7 @@
 package com.github.kory33.util.sponge.ezdata.kotlin.manipulator
 
+import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalFlatIf
+import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalIf
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.data.DataContainer
 import org.spongepowered.api.data.DataHolder
