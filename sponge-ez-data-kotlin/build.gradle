@@ -22,16 +22,21 @@ version '0.1.0-alpha'
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
 shadowJar {
-    dependencies {
-        include dependency('org.jetbrains.kotlin:kotlin-stdlib')
-    }
+    configurations = [project.configurations.embed]
     relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
 }
 
 task buildExample(type: ShadowJar) {
     baseName = "example"
-    from(sourceSets.test.output)
+    from(sourceSets.main.output, sourceSets.test.output)
+    configurations = [project.configurations.embed]
+    relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
 }
 
 repositories {
@@ -39,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    embed "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile 'org.spongepowered:spongeapi:7.0.0'
 }
 
