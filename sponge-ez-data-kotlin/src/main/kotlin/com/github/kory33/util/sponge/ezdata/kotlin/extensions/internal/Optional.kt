@@ -1,4 +1,4 @@
-package com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions
+package com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal
 
 import java.util.*
 

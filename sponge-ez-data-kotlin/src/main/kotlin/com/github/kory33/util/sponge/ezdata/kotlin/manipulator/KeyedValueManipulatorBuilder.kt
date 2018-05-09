@@ -1,7 +1,7 @@
 package com.github.kory33.util.sponge.ezdata.kotlin.manipulator
 
-import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalFlatIf
-import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalIf
+import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalFlatIf
+import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalIf
 import org.spongepowered.api.data.DataHolder
 import org.spongepowered.api.data.DataView
 import org.spongepowered.api.data.key.Key
@@ -18,11 +18,11 @@ abstract class KeyedValueManipulatorBuilder<M: KeyedValueManipulator<M, I>, I: I
     abstract val requiredKeys: Collection<Key<*>>
 
     override fun buildContent(container: DataView): Optional<M> {
-        return optionalFlatIf (requiredKeys.all { container.contains(it) }) {
+        return optionalFlatIf(requiredKeys.all { container.contains(it) }) {
             val valuePairs = requiredKeys.associate { it to container[it.query].get() }
 
             // if all the values corresponding to the queries are present
-            optionalIf (valuePairs.allTypesMatch()) {
+            optionalIf(valuePairs.allTypesMatch()) {
                 create().apply {
                     valuePairs.forEach { (key, value) ->
                         // By type-match check, there has to be some type E

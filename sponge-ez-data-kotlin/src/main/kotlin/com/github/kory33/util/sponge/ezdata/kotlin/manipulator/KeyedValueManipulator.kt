@@ -1,7 +1,7 @@
 package com.github.kory33.util.sponge.ezdata.kotlin.manipulator
 
-import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalFlatIf
-import com.github.kory33.util.sponge.ezdata.kotlin.internal.extensions.optionalIf
+import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalFlatIf
+import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalIf
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.data.DataContainer
 import org.spongepowered.api.data.DataHolder
@@ -45,10 +45,10 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
         val valuePairs = keyValueMap.keys.associate { it to container[it.query] }
 
         // if all the values corresponding to the queries are present
-        return optionalFlatIf (valuePairs.all { (_, value) -> value.isPresent }) {
+        return optionalFlatIf(valuePairs.all { (_, value) -> value.isPresent }) {
             val unwrappedValuePairs = valuePairs.mapValues { it.value.get() }
 
-            optionalIf (unwrappedValuePairs.allTypesMatch()) {
+            optionalIf(unwrappedValuePairs.allTypesMatch()) {
                 unwrappedValuePairs.forEach { key, unwrappedValue ->
                     // keyValueMap.keys.contains(key) therefore keyValueMap[key] is never null.
                     // Also, if, for some E, key: Key<out BaseValue<E>> then keyValueMap[key]: Value<E> by the
