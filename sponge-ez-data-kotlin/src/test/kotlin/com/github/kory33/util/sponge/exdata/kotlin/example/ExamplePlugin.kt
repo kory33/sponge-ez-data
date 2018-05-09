@@ -5,7 +5,6 @@ import com.github.kory33.util.sponge.exdata.kotlin.example.data.StoneBreak
 import com.github.kory33.util.sponge.exdata.kotlin.example.data.StoneBreakBuilder
 import com.github.kory33.util.sponge.ezdata.kotlin.buildPartialRegistration
 import com.github.kory33.util.sponge.ezdata.kotlin.extensions.transformSingleValue
-import org.spongepowered.api.Sponge
 import org.spongepowered.api.block.BlockTypes
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
@@ -23,8 +22,6 @@ class ExamplePlugin {
 
     @Listener
     fun onInit(event: GameInitializationEvent) {
-        val dataManager = Sponge.getDataManager()
-
         buildPartialRegistration(StoneBreak::class.java, ImmutableStoneBreak::class.java, StoneBreakBuilder())
                 .buildAndRegister(container)
     }
