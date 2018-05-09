@@ -10,6 +10,7 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue
 import org.spongepowered.api.data.value.mutable.Value
 import java.util.*
 
+@Suppress("UNCHECKED_CAST")
 abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>, M: DataManipulator<M, I>>: ImmutableDataManipulator<I, M> {
 
     /**
