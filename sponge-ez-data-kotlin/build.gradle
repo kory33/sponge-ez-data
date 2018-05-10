@@ -16,9 +16,9 @@ plugins {
     id 'org.spongepowered.plugin' version '0.8.1'
 }
 
-group 'com.github.kory33'
 version '0.1.0-alpha'
 
+apply plugin: 'maven'
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -30,6 +30,7 @@ configurations {
 shadowJar {
     configurations = [project.configurations.embed]
     relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
+    archiveName = "${baseName}-${version}.${extension}"
 }
 
 task buildExample(type: ShadowJar) {
@@ -37,6 +38,16 @@ task buildExample(type: ShadowJar) {
     from(sourceSets.main.output, sourceSets.test.output)
     configurations = [project.configurations.embed]
     relocate 'kotlin', 'com.github.kory33.util.sponge.ezdata.kotlin.kotlin'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
 
 repositories {
@@ -51,9 +62,16 @@ dependencies {
 jar.enabled = false
 assemble.dependsOn shadowJar
 
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+    archives shadowJar
+}
+
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
