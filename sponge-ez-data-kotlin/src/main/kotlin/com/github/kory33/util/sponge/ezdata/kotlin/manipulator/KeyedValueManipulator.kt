@@ -27,7 +27,7 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
      * Projection of [Value] onto [Key].
      *
      * Specifically, for every entry (k, v),
-     * there has to be some type `E` such that (k, v): (Key<out Value<E>>, Value<E>).
+     * there has to be some type `E` such that (k, v): (Key<out BaseValue<E>>, Value<E>).
      *
      * This property should hold by the type restriction given by [addKeyValuePair].
      */

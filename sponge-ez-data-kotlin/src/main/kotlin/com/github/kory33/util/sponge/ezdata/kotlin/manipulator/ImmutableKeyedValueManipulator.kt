@@ -17,7 +17,7 @@ abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>,
      * Projection of [ImmutableValue] onto [Key].
      *
      * Specifically, for every entry (k, v),
-     * there has to be some type `E` such that (k, v): (Key<out Value<E>>, ImmutableValue<E>).
+     * there has to be some type `E` such that (k, v): (Key<out BaseValue<E>>, ImmutableValue<E>).
      *
      * This property should hold by the type restriction given by [addKeyValuePair]
      */
