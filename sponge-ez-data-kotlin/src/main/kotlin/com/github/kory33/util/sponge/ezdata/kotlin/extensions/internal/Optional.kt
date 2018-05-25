@@ -7,3 +7,5 @@ inline fun <T> optionalIf(condition: Boolean, supplier: () -> T): Optional<T> =
 
 inline fun <T> optionalFlatIf(condition: Boolean, supplier: () -> Optional<T>): Optional<T> =
         optionalIf(condition, supplier).flatMap { it }
+
+fun <T> Optional<T>.asNullable(): T? = orElse(null)
