@@ -104,4 +104,19 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
         keyValueMap.forEach { key, value -> container.set(key.query, value.get()) }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as KeyedValueManipulator<*, *>
+
+        if (keyValueMap != other.keyValueMap) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return keyValueMap.hashCode()
+    }
+
 }
