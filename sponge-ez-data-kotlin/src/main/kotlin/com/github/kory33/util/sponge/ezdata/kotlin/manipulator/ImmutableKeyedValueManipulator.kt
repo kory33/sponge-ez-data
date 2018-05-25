@@ -10,6 +10,18 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue
 import org.spongepowered.api.data.value.mutable.Value
 import java.util.*
 
+/**
+ * Class of immutable data manipulators in which every internal data is managed through its corresponding [Key].
+ *
+ * Within the subclass constructor, [addKeyValuePair] has to be called in order to add a value which
+ * will then be serialized to [DataContainer].
+ *
+ * Implementation of [equals] and [hashCode] methods assume that no fields other than those within a key-map
+ * are taken into account for equality check. If that is not the case, [equals], [hashCode] and [toContainer]
+ * would need to be overrode.
+ *
+ * @author kory33
+ */
 @Suppress("UNCHECKED_CAST")
 abstract class ImmutableKeyedValueManipulator<I: ImmutableDataManipulator<I, M>, M: DataManipulator<M, I>>: ImmutableDataManipulator<I, M> {
 

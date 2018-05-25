@@ -20,6 +20,18 @@ import kotlin.collections.HashMap
  */
 internal fun Map<Key<*>, Any>.allTypesMatch() = all { (key, value) -> key.elementToken.rawType.isInstance(value) }
 
+/**
+ * Class of mutable data manipulators in which every internal data is managed through its corresponding [Key].
+ *
+ * Within the subclass constructor, [addKeyValuePair] has to be called in order to add a value which
+ * will then be serialized to [DataContainer].
+ *
+ * Implementation of [equals] and [hashCode] methods assume that no fields other than those within a key-map
+ * are taken into account for equality check. If that is not the case, [equals], [hashCode] and [toContainer]
+ * would need to be overrode.
+ *
+ * @author kory33
+ */
 @Suppress("UNCHECKED_CAST")
 abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: ImmutableDataManipulator<I, M>>: DataManipulator<M, I> {
 
