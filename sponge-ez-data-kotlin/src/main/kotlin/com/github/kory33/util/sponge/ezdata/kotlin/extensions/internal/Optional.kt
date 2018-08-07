@@ -8,6 +8,6 @@ inline fun <T> optionalIf(condition: Boolean, supplier: () -> T): Optional<T> =
 inline fun <T> optionalFlatIf(condition: Boolean, supplier: () -> Optional<T>): Optional<T> =
         optionalIf(condition, supplier).flatMap { it }
 
-inline fun <T> Optional<T>.mappend(other: () -> Optional<T>) = if(isPresent) this else other()
+inline fun <T> Optional<T>.orElseFill(other: () -> Optional<T>) = if(isPresent) this else other()
 
 fun <T> Optional<T>.asNullable(): T? = orElse(null)
