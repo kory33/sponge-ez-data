@@ -1,6 +1,6 @@
 package com.github.kory33.util.sponge.ezdata.kotlin.manipulator
 
-import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalFlatIf
+import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.mappend
 import com.github.kory33.util.sponge.ezdata.kotlin.extensions.internal.optionalIf
 import org.spongepowered.api.data.DataHolder
 import org.spongepowered.api.data.DataView
@@ -15,21 +15,20 @@ abstract class KeyedValueManipulatorBuilder<M: KeyedValueManipulator<M, I>, I: I
         mClass: Class<M>,
         supportedVersion: Int): AbstractDataBuilder<M>(mClass, supportedVersion), DataManipulatorBuilder<M, I> {
 
-    abstract val requiredKeys: Collection<Key<*>>
+    abstract val requiredKeys: Collection<Key<out BaseValue<*>>>
 
     override fun buildContent(container: DataView): Optional<M> {
-        return optionalFlatIf(requiredKeys.all { container.contains(it) }) {
-            val valuePairs = requiredKeys.associate { it to container[it.query].get() }
-
-            // if all the values corresponding to the queries are present
-            optionalIf(valuePairs.allTypesMatch()) {
-                create().apply {
-                    valuePairs.forEach { (key, value) ->
-                        // By type-match check, there has to be some type E
-                        // such that key: Key<out BaseValue<E>> and value: E.
-                        // therefore this operation is safe.
-                        set(key as Key<out BaseValue<Any>>, value)
+        return requiredKeys.fold(Optional.of(create())) { accum, key ->
+            accum.flatMap { manipulator ->
+                (container.getObject(key.query, key.elementToken.rawType) as Optional<Any>).mappend {
+                    container[key.query].flatMap { raw ->
+                        optionalIf(key.elementToken.isSupertypeOf(raw.javaClass)) {
+                            raw
+                        }
                     }
+                }.map { value ->
+                    // This is valid since there must exist a type T for which value: T and key: Key<out BaseValue<T>>.
+                    manipulator.set(key as Key<BaseValue<Any>>, value)
                 }
             }
         }
