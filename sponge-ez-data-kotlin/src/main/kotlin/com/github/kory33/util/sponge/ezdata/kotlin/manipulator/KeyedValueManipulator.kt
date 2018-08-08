@@ -14,15 +14,14 @@ import org.spongepowered.api.data.value.BaseValue
 import org.spongepowered.api.data.value.immutable.ImmutableValue
 import org.spongepowered.api.data.value.mutable.Value
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * Gets a value or an object corresponding to the given value key.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun <T> DataView.getCorrespondingValue(key: Key<out BaseValue<T>>): Optional<T> {
-    return (container.getObject(key.query, key.elementToken.rawType) as Optional<T>).orElseFill {
-        container[key.query].flatMap { raw ->
+internal fun <T> DataView.retrieveValue(key: Key<out BaseValue<T>>): Optional<T> {
+    return (getObject(key.query, key.elementToken.rawType) as Optional<T>).orElseFill {
+        get(key.query).flatMap { raw ->
             optionalIf(key.elementToken.isSupertypeOf(raw.javaClass)) {
                 raw
             } as Optional<T>
@@ -53,7 +52,7 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
      *
      * This property should hold by the type restriction given by [addKeyValuePair].
      */
-    private val keyValueMap: MutableMap<Key<*>, Value<*>> = HashMap()
+    private val keyValueMap: MutableMap<Key<*>, Value<*>> = java.util.HashMap()
 
     protected fun <E> addValue(value: Value<E>) {
         keyValueMap[value.key] = value
@@ -87,18 +86,16 @@ abstract class KeyedValueManipulator<M: KeyedValueManipulator<M, I>, I: Immutabl
     }
 
     fun fromView(view: DataView): Optional<M> {
-        val valuePairs = keyValueMap.keys.associate { it to view.getCorrespondingValue(it as Key<BaseValue<Any>>) }
-
+        val valuePairs = keyValueMap.keys.associate { it to view.retrieveValue(it as Key<BaseValue<Any>>) }
         // if all the values corresponding to the queries are present
         return optionalIf(valuePairs.all { (_, value) -> value.isPresent }) {
             val unwrappedValuePairs = valuePairs.mapValues { it.value.get() }.toList()
-
             // The last cast is safe if the derived type's M is derived type itself.
             unwrappedValuePairs.fold(this) { accum, (key, value) ->
-                // If, for some E, key: Key<out Value<E>> then keyValueMap[key]: Value<E> by the
-                // property of keyValueMap. By type-match check, unwrappedValue: E for the same E.
+                // If, for some E, key: Key<out BaseValue<E>> then keyValueMap[key]: Value<E> by the
+                // property of keyValueMap. By type-match check, u6nwrappedValue: E for the same E.
                 // therefore this line does not cause any heap pollution.
-                key as Key<Value<Any>>
+                key as Key<BaseValue<Any>>
                 accum.set(key, value)
             } as M
         }
